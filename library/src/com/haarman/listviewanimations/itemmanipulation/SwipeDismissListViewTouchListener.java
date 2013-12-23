@@ -59,7 +59,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 	protected long mAnimationTime;
 
 	// Fixed properties
-	private AbsListView mListView;
+	protected AbsListView mListView;
 	private OnDismissCallback mCallback;
 	private int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
 
@@ -77,8 +77,6 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 	private VelocityTracker mVelocityTracker;
 	private boolean mPaused;
 	private PendingDismissData mCurrentDismissData;
-
-	private int mVirtualListCount = -1;
 
 	private boolean mDisallowSwipe;
 	private boolean mIsParentHorizontalScrollContainer;
@@ -100,8 +98,9 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 		mAnimationTime = listView.getContext().getResources().getInteger(android.R.integer.config_shortAnimTime);
 		mListView = listView;
 		mCallback = callback;
-		
+
 		onScroll.setTouchListener(this);
+				
 		mListView.setOnScrollListener(onScroll);
 	}
 
@@ -115,9 +114,6 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 	
 	@Override
 	public boolean onTouch(View view, MotionEvent motionEvent) {
-		if (mVirtualListCount == -1) {
-			mVirtualListCount = mListView.getAdapter().getCount();
-		}
 
 		if (mViewWidth < 2) {
 			mViewWidth = mListView.getWidth();
@@ -166,11 +162,12 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 		int x = (int) motionEvent.getRawX() - listViewCoords[0];
 		int y = (int) motionEvent.getRawY() - listViewCoords[1];
 		View downView = null;
-		for (int i = 0; i < childCount && downView == null; i++) {
+		for (int i = 0; i < childCount ; i++) {
 			View child = mListView.getChildAt(i);
 			child.getHitRect(rect);
 			if (rect.contains(x, y)) {
 				downView = child;
+				break;
 			}
 		}
 		
@@ -183,8 +180,9 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 
 			mCurrentDismissData = createPendingDismissData(downPosition, downView);
 
-			if (mPendingDismisses.contains(mCurrentDismissData) || downPosition >= mVirtualListCount) {
+			if (mPendingDismisses.contains(mCurrentDismissData)) {
 				// Cancel, we're already processing this position
+				Log.d("SwipeDismissListViewTouchListener", "already processing !");
 				mCurrentDismissData = null;
 				return false;
 			} else {
@@ -265,7 +263,6 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 					}
 				});
 				
-				mVirtualListCount--;
 				mPendingDismisses.add(mCurrentDismissData);
 			} else {
 				Log.d("SwipeDismissListViewTouchListener", "swipe/cancelled");
@@ -395,6 +392,6 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
     }
 
 	public void notifyDataSetChanged() {
-		mVirtualListCount = mListView.getAdapter().getCount();
+		// nothing for now
 	}
 }

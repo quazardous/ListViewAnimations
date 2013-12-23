@@ -16,6 +16,7 @@
 package com.haarman.listviewanimations;
 
 import android.database.DataSetObserver;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -47,7 +48,6 @@ public abstract class BaseAdapterDecorator extends BaseAdapter implements Sectio
 
 	public void setAbsListView(AbsListView listView) {
 		mListView = listView;
-
 		if (mDecoratedBaseAdapter instanceof BaseAdapterDecorator) {
 			((BaseAdapterDecorator) mDecoratedBaseAdapter).setAbsListView(listView);
 		}
